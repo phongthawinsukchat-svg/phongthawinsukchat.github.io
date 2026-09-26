@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#070b14">
+<title>GroupSync - จัดการตารางและกิจกรรมกลุ่ม</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+/* ================================================================
+   SECTION: RESET & BASE
+================================================================ */
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg0:#070b14;
+  --bg1:#0d1220;
+  --bg2:#131a2c;
+  --bg3:#1b2438;
+  --border:#243049;
+  --border-light:#2f3c58;
+  --text0:#e8ecf5;
+  --text1:#94a3b8;
+  --text2:#5b6884;
+  --c-blue:#3b82f6;
+  --c-purple:#8b5cf6;
+  --c-green:#10b981;
+  --c-orange:#f59e0b;
+  --c-red:#ef4444;
+  --c-pink:#ec4899;
+  --c-cyan:#06b6d4;
+  --c-yellow:#eab308;
+  --radius:14px;
+  --radius-sm:8px;
+}
+html,body{height:100%;}
+body{
+  font-family:'Sarabun',sans-serif;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(59,130,246,0.10), transparent 40%),
+    radial-gradient(circle at 85% 20%, rgba(139,92,246,0.08), transparent 40%),
+    var(--bg0);
+  color:var(--text0);
+  min-height:100vh;
+  line-height:1.5;
+}
+.mono{font-family:'Space Mono',monospace;}
+.hidden{display:none !important;}
+a{color:inherit;}
+button{font-family:'Sarabun',sans-serif;cursor:pointer;}
+input,select,textarea{font-family:'Sarabun',sans-serif;}
+::-webkit-scrollbar{height:8px;width:8px;}
+::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:10px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+/* ================================================================
+   SECTION: FORM ELEMENTS / BUTTONS
+================================================================ */
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:13px;color:var(--text1);margin-bottom:6px;font-weight:500;}
+.input, select.input, textarea.input{
+  width:100%;padding:11px 13px;border-radius:var(--radius-sm);
+  background:var(--bg1);border:1px solid var(--border);color:var(--text0);
+  font-size:14px;outline:none;transition:border-color .15s, box-shadow .15s;
+}
+.input:focus, select.input:focus, textarea.input:focus{
+  border-color:var(--c-blue);box-shadow:0 0 0 3px rgba(59,130,246,.15);
+}
+textarea.input{resize:vertical;min-height:70px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.checkbox-line{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text1);}
+.checkbox-line input{accent-color:var(--c-blue);width:16px;height:16px;}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:10px 18px;border-radius:var(--radius-sm);border:none;
+  font-size:14px;font-weight:600;transition:transform .1s, opacity .15s, background .15s;
+  white-space:nowrap;
+}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:linear-gradient(135deg,var(--c-blue),#2563eb);color:#fff;}
+.btn-primary:hover{opacity:.9;}
+.btn-outline{background:transparent;border:1px solid var(--border-light);color:var(--text0);}
+.btn-outline:hover{background:var(--bg3);}
+.btn-danger{background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.3);}
+.btn-danger:hover{background:rgba(239,68,68,.25);}
+.btn-success{background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.3);}
+.btn-success:hover{background:rgba(16,185,129,.25);}
+.btn-sm{padding:6px 12px;font-size:12.5px;}
+.btn-block{width:100%;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+
+/* ================================================================
+   SECTION: CARDS / BADGES / AVATAR
+================================================================ */
+.card{
+  background:linear-gradient(180deg, var(--bg2), var(--bg1));
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px;
+}
+.card-tight{padding:14px;}
+.badge{
+  display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;
+  font-size:11.5px;font-weight:700;letter-spacing:.2px;
+}
+.badge-blue{background:rgba(59,130,246,.15);color:#93c5fd;}
+.badge-purple{background:rgba(139,92,246,.15);color:#c4b5fd;}
+.badge-green{background:rgba(16,185,129,.15);color:#6ee7b7;}
+.badge-orange{background:rgba(245,158,11,.15);color:#fcd34d;}
+.badge-red{background:rgba(239,68,68,.15);color:#fca5a5;}
+.badge-pink{background:rgba(236,72,153,.15);color:#f9a8d4;}
+.badge-cyan{background:rgba(6,182,212,.15);color:#67e8f9;}
+.badge-gray{background:var(--bg3);color:var(--text1);}
+
+.avatar{
+  width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:700;color:#fff;font-size:15px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+.avatar-sm{width:30px;height:30px;font-size:12px;}
+.avatar-lg{width:64px;height:64px;font-size:22px;}
+
+/* ================================================================
+   SECTION: LOADING SCREEN
+================================================================ */
+#loadingScreen{
+  position:fixed;inset:0;background:var(--bg0);z-index:999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+}
+.spinner{
+  width:44px;height:44px;border-radius:50%;
+  border:4px solid var(--border);border-top-color:var(--c-blue);
+  animation:spin 0.8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.logo-text{font-size:26px;font-weight:700;}
+.logo-text span{color:var(--c-blue);}
+
+/* ================================================================
+   SECTION: AUTH SCREEN
+================================================================ */
+#authScreen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.auth-wrap{width:100%;max-width:420px;}
+.auth-logo{text-align:center;margin-bottom:24px;}
+.auth-logo .logo-text{font-size:32px;}
+.auth-logo p{color:var(--text1);font-size:13.5px;margin-top:6px;}
+.auth-card{padding:26px;}
+.auth-tabs{display:flex;background:var(--bg1);border-radius:var(--radius-sm);padding:4px;margin-bottom:22px;}
+.auth-tab-btn{
+  flex:1;padding:10px;border:none;background:transparent;color:var(--text1);
+  border-radius:6px;font-weight:600;font-size:14px;transition:all .15s;
+}
+.auth-tab-btn.active{background:var(--c-blue);color:#fff;}
+.auth-message{
+  padding:10px 12px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:14px;
+  display:none;
+}
+.auth-message.show{display:block;}
+.auth-message.error{background:rgba(239,68,68,.12);color:#fca5a5;border:1px solid rgba(239,68,68,.25);}
+.auth-message.success{background:rgba(16,185,129,.12);color:#6ee7b7;border:1px solid rgba(16,185,129,.25);}
+.auth-hint{
+  margin-top:18px;padding:12px;background:var(--bg1);border-radius:var(--radius-sm);
+  font-size:12.5px;color:var(--text1);border:1px dashed var(--border-light);text-align:center;
+}
+.auth-hint b{color:var(--text0);}
+
+/* ================================================================
+   SECTION: MAIN APP LAYOUT
+================================================================ */
+#mainScreen{min-height:100vh;display:flex;flex-direction:column;}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 22px;border-bottom:1px solid var(--border);background:rgba(13,18,32,.85);
+  backdrop-filter:blur(10px);position:sticky;top:0;z-index:50;
+}
+.topbar-left{display:flex;align-items:center;gap:10px;}
+.topbar-left .logo-text{font-size:19px;}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.user-chip{display:flex;align-items:center;gap:10px;}
+.user-chip .uname{font-size:13.5px;font-weight:600;}
+.user-chip .uroom{font-size:11.5px;color:var(--text1);}
+
+.tabnav{
+  display:flex;gap:6px;overflow-x:auto;padding:10px 16px;border-bottom:1px solid var(--border);
+  background:var(--bg1);
+}
+.tabnav::-webkit-scrollbar{height:4px;}
+.tab-btn{
+  flex-shrink:0;padding:9px 15px;border:none;background:transparent;color:var(--text1);
+  border-radius:var(--radius-sm);font-size:13.5px;font-weight:600;display:flex;gap:6px;align-items:center;
+  transition:all .15s;
+}
+.tab-btn:hover{background:var(--bg3);color:var(--text0);}
+.tab-btn.active{background:linear-gradient(135deg,var(--c-blue),#2563eb);color:#fff;}
+
+.content-wrap{flex:1;padding:22px;max-width:1200px;width:100%;margin:0 auto;}
+.tab-content{display:none;animation:fadein .2s ease;}
+.tab-content.active{display:block;}
+@keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+.section-title{font-size:19px;font-weight:700;}
+.section-sub{color:var(--text1);font-size:13px;margin-top:2px;}
+
+/* ================================================================
+   SECTION: DASHBOARD
+================================================================ */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.stat-card{padding:18px;position:relative;overflow:hidden;}
+.stat-card .num{font-size:30px;font-weight:700;font-family:'Space Mono',monospace;}
+.stat-card .lbl{color:var(--text1);font-size:12.5px;margin-top:4px;}
+.stat-card .ic{position:absolute;right:14px;top:14px;font-size:26px;opacity:.35;}
+.stat-blue{border-left:3px solid var(--c-blue);}
+.stat-purple{border-left:3px solid var(--c-purple);}
+.stat-orange{border-left:3px solid var(--c-orange);}
+.stat-red{border-left:3px solid var(--c-red);}
+
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.list-item{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:11px 0;border-bottom:1px solid var(--border);font-size:13.5px;
+}
+.list-item:last-child{border-bottom:none;}
+.empty-note{color:var(--text2);font-size:13px;text-align:center;padding:24px 0;}
+
+/* ================================================================
+   SECTION: GRID TABLES (TIMETABLE / FREE SLOT)
+================================================================ */
+.grid-scroll{overflow-x:auto;}
+.sched-table{border-collapse:collapse;width:100%;min-width:680px;}
+.sched-table th,.sched-table td{border:1px solid var(--border);padding:6px;vertical-align:top;}
+.sched-table th{background:var(--bg1);font-size:12.5px;color:var(--text1);padding:10px 6px;}
+.sched-table td{height:56px;width:120px;background:var(--bg1);}
+.sched-table .time-col{font-family:'Space Mono',monospace;font-size:11.5px;color:var(--text1);background:var(--bg2);text-align:center;white-space:nowrap;}
+.sched-chip{
+  font-size:10.5px;padding:3px 6px;border-radius:5px;margin:2px 0;color:#fff;font-weight:600;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.free-cell{text-align:center;font-family:'Space Mono',monospace;font-size:12.5px;color:var(--text1);}
+.free-cell.full-free{background:rgba(16,185,129,.18) !important;color:#6ee7b7;font-weight:700;box-shadow:inset 0 0 0 2px rgba(16,185,129,.4);}
+.free-cell.no-free{color:var(--text2);}
+.legend{display:flex;gap:16px;margin-top:12px;font-size:12px;color:var(--text1);flex-wrap:wrap;}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block;}
+
+/* ================================================================
+   SECTION: GENERIC LISTS / CARDS GRID
+================================================================ */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+.item-card{padding:16px;border-radius:var(--radius);position:relative;}
+.item-card .top-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;}
+.item-card h4{font-size:15px;font-weight:700;}
+.item-card .meta{font-size:12.5px;color:var(--text1);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap;}
+.item-card .detail{font-size:13px;color:var(--text1);margin-top:8px;}
+.item-actions{display:flex;gap:8px;margin-top:12px;}
+
+.sub-tabs{display:flex;gap:8px;margin-bottom:16px;}
+.sub-tab-btn{padding:8px 16px;border-radius:20px;border:1px solid var(--border-light);background:var(--bg1);color:var(--text1);font-size:13px;font-weight:600;}
+.sub-tab-btn.active{background:var(--c-blue);color:#fff;border-color:var(--c-blue);}
+
+.toggle-form-btn{margin-bottom:16px;}
+.form-card{margin-bottom:20px;}
+
+.progress-bar-wrap{background:var(--bg1);border-radius:20px;height:6px;width:100%;margin-top:8px;overflow:hidden;}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--c-blue),var(--c-cyan));border-radius:20px;}
+
+/* ================================================================
+   SECTION: MEMBERS
+================================================================ */
+.member-card{padding:16px;text-align:center;}
+.member-card .avatar{margin:0 auto 10px;}
+.member-card h4{font-size:14.5px;font-weight:700;}
+.member-card .room{font-size:12.5px;color:var(--text1);margin:4px 0 8px;}
+
+/* ================================================================
+   SECTION: RANDOM GROUP / BUDDY
+================================================================ */
+.member-checklist{max-height:260px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;background:var(--bg1);}
+.chk-row{display:flex;align-items:center;gap:10px;padding:7px 4px;border-radius:6px;}
+.chk-row:hover{background:var(--bg3);}
+.chk-row input{accent-color:var(--c-blue);width:16px;height:16px;}
+.group-result-card{padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border-light);background:var(--bg1);}
+.group-result-card h5{font-size:13.5px;margin-bottom:8px;color:var(--c-cyan);}
+.group-member-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg2);padding:4px 10px;border-radius:20px;font-size:12.5px;margin:3px 4px 0 0;}
+.history-entry{border-bottom:1px solid var(--border);padding:12px 0;}
+.history-entry:last-child{border-bottom:none;}
+
+.buddy-card{display:flex;align-items:center;gap:14px;padding:18px;}
+.buddy-card .plus{font-size:20px;color:var(--text2);}
+
+/* ================================================================
+   SECTION: ADMIN PANEL
+================================================================ */
+.code-display{
+  font-family:'Space Mono',monospace;font-size:26px;font-weight:700;letter-spacing:3px;
+  background:var(--bg1);padding:14px 20px;border-radius:var(--radius-sm);border:1px dashed var(--c-blue);
+  color:var(--c-blue);display:inline-block;
+}
+.admin-table{width:100%;border-collapse:collapse;}
+.admin-table th{text-align:left;font-size:12px;color:var(--text1);padding:10px 8px;border-bottom:1px solid var(--border);}
+.admin-table td{padding:10px 8px;border-bottom:1px solid var(--border);font-size:13.5px;vertical-align:middle;}
+.admin-table tr:last-child td{border-bottom:none;}
+
+/* ================================================================
+   SECTION: TOAST
+================================================================ */
+#toastBox{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{
+  padding:12px 16px;border-radius:var(--radius-sm);font-size:13.5px;font-weight:600;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);animation:slidein .2s ease;max-width:280px;
+}
+@keyframes slidein{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+.toast-success{background:#0f2e22;color:#6ee7b7;border:1px solid #10b981;}
+.toast-error{background:#3a1414;color:#fca5a5;border:1px solid #ef4444;}
+.toast-info{background:#111c33;color:#93c5fd;border:1px solid #3b82f6;}
+
+/* ================================================================
+   SECTION: RESPONSIVE
+================================================================ */
+@media (max-width:900px){
+  .stat-grid{grid-template-columns:repeat(2,1fr);}
+  .dash-grid{grid-template-columns:1fr;}
+  .row2,.row3{grid-template-columns:1fr;}
+}
+@media (max-width:600px){
+  .topbar{padding:12px 14px;}
+  .content-wrap{padding:14px;}
+  .stat-grid{grid-template-columns:1fr 1fr;}
+  .user-chip .uroom{display:none;}
+  .code-display{font-size:20px;letter-spacing:2px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ================================================================
+     LOADING SCREEN
+================================================================ -->
+<div id="loadingScreen">
+  <div class="logo-text">Group<span>Sync</span></div>
+  <div class="spinner"></div>
+  <div style="color:var(--text1);font-size:13px;">กำลังเชื่อมต่อระบบ...</div>
+</div>
+
+<!-- ================================================================
+     TOAST CONTAINER
+================================================================ -->
+<div id="toastBox"></div>
+
+<!-- ================================================================
+     AUTH SCREEN (LOGIN / REGISTER)
+================================================================ -->
+<div id="authScreen" class="hidden">
+  <div class="auth-wrap">
+    <div class="auth-logo">
+      <div class="logo-text">Group<span>Sync</span></div>
+      <p>จัดการตารางเรียนและกิจกรรมของกลุ่มคุณในที่เดียว</p>
+    </div>
+    <div class="card auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" id="showLoginBtn">เข้าสู่ระบบ</button>
+        <button class="auth-tab-btn" id="showRegisterBtn">สมัครสมาชิก</button>
+      </div>
+
+      <div id="authMessage" class="auth-message"></div>
+
+      <!-- LOGIN FORM -->
+      <form id="loginForm">
+        <div class="field">
+          <label>ชื่อผู้ใช้ (Username)</label>
+          <input type="text" class="input" id="loginUsername" required autocomplete="username">
+        </div>
+        <div class="field">
+          <label>รหัสผ่าน</label>
+          <input type="password" class="input" id="loginPassword" required autocomplete="current-password">
+        </div>
+        <div class="field checkbox-line">
+          <input type="checkbox" id="rememberMe">
+          <label for="rememberMe" style="margin:0;">จดจำการเข้าสู่ระบบไว้ในเครื่องนี้</label>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">เข้าสู่ระบบ</button>
+      </form>
+
+      <!-- REGISTER FORM -->
+      <form id="registerForm" class="hidden">
+        <div class="field">
+          <label>ชื่อผู้ใช้ (Username)</label>
+          <input type="text" class="input" id="regUsername" required>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>ห้อง</label>
+            <input type="text" class="input" id="regRoom" placeholder="เช่น ม.6/1" required>
+          </div>
+          <div class="field">
+            <label>รหัสกลุ่ม (Group Code)</label>
+            <input type="text" class="input mono" id="regGroupCode" placeholder="XXXXXXXX" required>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>รหัสผ่าน</label>
+            <input type="password" class="input" id="regPassword" required minlength="6">
+          </div>
+          <div class="field">
+            <label>ยืนยันรหัสผ่าน</label>
+            <input type="password" class="input" id="regConfirmPassword" required minlength="6">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">สมัครสมาชิก</button>
+      </form>
+
+      <div class="auth-hint">
+        บัญชีแอดมินเริ่มต้น: <b>admin</b> / <b>admin123</b><br>
+        (แนะนำให้แอดมินเปลี่ยนรหัสกลุ่มใหม่หลังใช้งานครั้งแรก)
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     MAIN APP SCREEN
+================================================================ -->
+<div id="mainScreen" class="hidden">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo-text" style="font-size:19px;">Group<span>Sync</span></div>
+    </div>
+    <div class="topbar-right">
+      <div class="user-chip">
+        <div class="avatar avatar-sm" id="headerAvatar"></div>
+        <div>
+          <div class="uname" id="headerUsername"></div>
+          <div class="uroom" id="headerRoom"></div>
+        </div>
+      </div>
+      <button class="btn btn-outline btn-sm" id="logoutBtn">ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <!-- TAB NAVIGATION -->
+  <div class="tabnav" id="tabNav">
+    <button class="tab-btn active" data-tab="dashboard">🏠 แดชบอร์ด</button>
+    <button class="tab-btn" data-tab="timetable">📅 ตารางเรียน</button>
+    <button class="tab-btn" data-tab="freeslot">🟢 คาบว่างตรงกัน</button>
+    <button class="tab-btn" data-tab="appointments">📌 นัดหมายกลุ่ม</button>
+    <button class="tab-btn" data-tab="assignments">📝 งานที่ต้องส่ง</button>
+    <button class="tab-btn" data-tab="members">👥 สมาชิก</button>
+    <button class="tab-btn" data-tab="randomgroup">🎲 สุ่มกลุ่ม</button>
+    <button class="tab-btn" data-tab="buddy">🤝 บัดดี้</button>
+    <button class="tab-btn hidden" data-tab="admin" id="adminTabBtn">⚙️ Admin Panel</button>
+  </div>
+
+  <div class="content-wrap">
+
+    <!-- ============ TAB: DASHBOARD ============ -->
+    <div class="tab-content active" id="tab-dashboard">
+      <div class="section-head">
+        <div>
+          <div class="section-title">ภาพรวมกลุ่ม</div>
+          <div class="section-sub" id="todayDateThai"></div>
+        </div>
+      </div>
+      <div class="stat-grid">
+        <div class="card stat-card stat-blue">
+          <div class="ic">👥</div>
+          <div class="num" id="statMembers">0</div>
+          <div class="lbl">จำนวนสมาชิก</div>
+        </div>
+        <div class="card stat-card stat-purple">
+          <div class="ic">📌</div>
+          <div class="num" id="statToday">0</div>
+          <div class="lbl">นัดหมายวันนี้</div>
+        </div>
+        <div class="card stat-card stat-orange">
+          <div class="ic">📝</div>
+          <div class="num" id="statPending">0</div>
+          <div class="lbl">งานค้างส่ง (ของฉัน)</div>
+        </div>
+        <div class="card stat-card stat-red">
+          <div class="ic">⏰</div>
+          <div class="num" id="statDueSoon">0</div>
+          <div class="lbl">งานใกล้ครบกำหนด</div>
+        </div>
+      </div>
+      <div class="dash-grid">
+        <div class="card">
+          <div class="section-title" style="font-size:15px;margin-bottom:10px;">นัดหมายวันนี้</div>
+          <div id="dashTodayList"></div>
+        </div>
+        <div class="card">
+          <div class="section-title" style="font-size:15px;margin-bottom:10px;">งานใกล้ครบกำหนด</div>
+          <div id="dashDueSoonList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TAB: TIMETABLE ============ -->
+    <div class="tab-content" id="tab-timetable">
+      <div class="section-head">
+        <div>
+          <div class="section-title">ตารางเรียน</div>
+          <div class="section-sub">จันทร์ - ศุกร์ | 08:00 - 18:00</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <select class="input" id="timetableRoomFilter" style="width:auto;"></select>
+          <button class="btn btn-primary btn-sm" id="toggleTimetableForm">+ เพิ่มคาบเรียน</button>
+        </div>
+      </div>
+
+      <div class="card form-card hidden" id="timetableFormCard">
+        <form id="timetableForm">
+          <div class="row3">
+            <div class="field">
+              <label>ชื่อวิชา</label>
+              <input type="text" class="input" id="ttSubject" required>
+            </div>
+            <div class="field">
+              <label>วัน</label>
+              <select class="input" id="ttDay" required></select>
+            </div>
+            <div class="field"></div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>เวลาเริ่ม</label>
+              <select class="input" id="ttStart" required></select>
+            </div>
+            <div class="field">
+              <label>เวลาสิ้นสุด</label>
+              <select class="input" id="ttEnd" required></select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">บันทึกคาบเรียน</button>
+        </form>
+      </div>
+
+      <div class="card grid-scroll">
+        <div id="timetableGridWrap"></div>
+      </div>
+    </div>
+
+    <!-- ============ TAB: FREE SLOT ============ -->
+    <div class="tab-content" id="tab-freeslot">
+      <div class="section-head">
+        <div>
+          <div class="section-title">คาบว่างตรงกัน</div>
+          <div class="section-sub">คำนวณจากตารางเรียนของสมาชิกทุกคนในกลุ่ม</div>
+        </div>
+      </div>
+      <div class="card grid-scroll">
+        <div id="freeSlotGridWrap"></div>
+        <div class="legend">
+          <span><i style="background:rgba(16,185,129,.5);"></i> ว่างทุกคน</span>
+          <span><i style="background:var(--bg3);"></i> ว่างบางส่วน</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TAB: APPOINTMENTS ============ -->
+    <div class="tab-content" id="tab-appointments">
+      <div class="section-head">
+        <div class="section-title">นัดหมายกลุ่ม</div>
+        <button class="btn btn-primary btn-sm" id="toggleAppointmentForm">+ เพิ่มนัดหมาย</button>
+      </div>
+
+      <div class="card form-card hidden" id="appointmentFormCard">
+        <form id="appointmentForm">
+          <div class="field">
+            <label>หัวข้อนัดหมาย</label>
+            <input type="text" class="input" id="apTitle" required>
+          </div>
+          <div class="row3">
+            <div class="field">
+              <label>วันที่</label>
+              <input type="date" class="input" id="apDate" required>
+            </div>
+            <div class="field">
+              <label>เวลา</label>
+              <input type="time" class="input" id="apTime" required>
+            </div>
+            <div class="field">
+              <label>สถานที่</label>
+              <input type="text" class="input" id="apLocation">
+            </div>
+          </div>
+          <div class="field">
+            <label>รายละเอียด</label>
+            <textarea class="input" id="apDetail"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">บันทึกนัดหมาย</button>
+        </form>
+      </div>
+
+      <div class="card-grid" id="appointmentsList"></div>
+    </div>
+
+    <!-- ============ TAB: ASSIGNMENTS ============ -->
+    <div class="tab-content" id="tab-assignments">
+      <div class="section-head">
+        <div class="section-title">งานที่ต้องส่ง</div>
+        <button class="btn btn-primary btn-sm" id="toggleAssignmentForm">+ เพิ่มงาน</button>
+      </div>
+
+      <div class="card form-card hidden" id="assignmentFormCard">
+        <form id="assignmentForm">
+          <div class="row2">
+            <div class="field">
+              <label>ชื่อวิชา / งาน</label>
+              <input type="text" class="input" id="asSubject" required>
+            </div>
+            <div class="field">
+              <label>กำหนดส่ง (Deadline)</label>
+              <input type="datetime-local" class="input" id="asDeadline" required>
+            </div>
+          </div>
+          <div class="field">
+            <label>ความสำคัญ</label>
+            <select class="input" id="asPriority">
+              <option value="สูง">สูง</option>
+              <option value="กลาง" selected>กลาง</option>
+              <option value="ต่ำ">ต่ำ</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>หมายเหตุ</label>
+            <textarea class="input" id="asNote"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">บันทึกงาน</button>
+        </form>
+      </div>
+
+      <div class="sub-tabs">
+        <button class="sub-tab-btn active" data-astab="pending">รอส่ง</button>
+        <button class="sub-tab-btn" data-astab="done">ส่งแล้ว</button>
+      </div>
+      <div class="card-grid" id="assignmentsList"></div>
+    </div>
+
+    <!-- ============ TAB: MEMBERS ============ -->
+    <div class="tab-content" id="tab-members">
+      <div class="section-head">
+        <div class="section-title">สมาชิกในกลุ่ม</div>
+      </div>
+      <div class="card-grid" id="membersGrid"></div>
+    </div>
+
+    <!-- ============ TAB: RANDOM GROUP ============ -->
+    <div class="tab-content" id="tab-randomgroup">
+      <div class="section-head">
+        <div class="section-title">ระบบสุ่มกลุ่ม</div>
+      </div>
+      <div class="card" style="margin-bottom:18px;">
+        <div class="row2" style="align-items:flex-end;">
+          <div class="field" style="margin-bottom:0;">
+            <label>เลือกสมาชิกที่จะสุ่ม</label>
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <button type="button" class="btn btn-outline btn-sm" id="rgSelectAll">เลือกทั้งหมด</button>
+              <button type="button" class="btn btn-outline btn-sm" id="rgSelectNone">ไม่เลือกเลย</button>
+            </div>
+            <div class="member-checklist" id="rgChecklist"></div>
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>จำนวนคนต่อกลุ่ม</label>
+            <input type="number" class="input" id="rgGroupSize" value="3" min="1" style="margin-bottom:10px;">
+            <button class="btn btn-primary btn-block" id="rgGenerateBtn">🎲 สุ่มกลุ่ม</button>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:18px;">
+        <div class="section-title" style="font-size:15px;margin-bottom:12px;">ผลการสุ่มล่าสุด</div>
+        <div class="card-grid" id="rgResult"><div class="empty-note">ยังไม่มีการสุ่มกลุ่ม</div></div>
+      </div>
+      <div class="card">
+        <div class="section-title" style="font-size:15px;margin-bottom:6px;">ประวัติการสุ่ม</div>
+        <div id="rgHistory"></div>
+      </div>
+    </div>
+
+    <!-- ============ TAB: BUDDY ============ -->
+    <div class="tab-content" id="tab-buddy">
+      <div class="section-head">
+        <div class="section-title">ระบบบัดดี้</div>
+      </div>
+
+      <div class="card hidden" id="buddyAdminControls" style="margin-bottom:18px;">
+        <div class="row2" style="align-items:flex-end;">
+          <div class="field" style="margin-bottom:0;">
+            <label>เลือกสมาชิกที่จะเข้าร่วมสุ่มบัดดี้</label>
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <button type="button" class="btn btn-outline btn-sm" id="bdSelectAll">เลือกทั้งหมด</button>
+              <button type="button" class="btn btn-outline btn-sm" id="bdSelectNone">ไม่เลือกเลย</button>
+            </div>
+            <div class="member-checklist" id="bdChecklist"></div>
+          </div>
+          <div class="field" style="margin-bottom:0;display:flex;flex-direction:column;gap:8px;">
+            <button class="btn btn-primary btn-block" id="bdGenerateBtn">🎲 สุ่มบัดดี้ใหม่</button>
+            <button class="btn btn-danger btn-block" id="bdResetBtn">รีเซ็ตบัดดี้ทั้งหมด</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:18px;">
+        <div class="section-title" style="font-size:15px;margin-bottom:12px;">บัดดี้ของฉัน</div>
+        <div id="myBuddyCard"></div>
+      </div>
+
+      <div class="card hidden" id="allBuddyCard">
+        <div class="section-title" style="font-size:15px;margin-bottom:12px;">คู่บัดดี้ทั้งหมด (มุมมองแอดมิน)</div>
+        <div class="card-grid" id="allBuddyList"></div>
+      </div>
+    </div>
+
+    <!-- ============ TAB: ADMIN PANEL ============ -->
+    <div class="tab-content" id="tab-admin">
+      <div class="section-head">
+        <div class="section-title">Admin Panel</div>
+      </div>
+
+      <div class="card" style="margin-bottom:18px;">
+        <div class="section-title" style="font-size:15px;margin-bottom:10px;">รหัสกลุ่มปัจจุบัน (Group Code)</div>
+        <div class="code-display" id="adminGroupCode">--------</div>
+        <div style="margin-top:14px;">
+          <button class="btn btn-outline btn-sm" id="copyGroupCodeBtn">คัดลอกรหัส</button>
+          <button class="btn btn-danger btn-sm" id="regenGroupCodeBtn">สร้างรหัสกลุ่มใหม่</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title" style="font-size:15px;margin-bottom:10px;">จัดการสมาชิก</div>
+        <div class="grid-scroll">
+          <table class="admin-table">
+            <thead>
+              <tr><th>สมาชิก</th><th>ห้อง</th><th>บทบาท</th><th>จัดการ</th></tr>
+            </thead>
+            <tbody id="adminMembersTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================================================================
+     JAVASCRIPT (FIREBASE MODULAR SDK VIA CDN + APP LOGIC)
+================================================================ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getDatabase, ref, push, set, update, remove, onValue, get, child
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* ================================================================
+   SECTION: FIREBASE CONFIG
+   ใส่ค่าครบตามที่คุณให้มาแล้ว เหลือแค่ apiKey ที่คุณต้องเติมเอง
+   (ค่า apiKey ที่ให้มาถูกปิดบังด้วย ***** ผมจึงใส่ให้ไม่ได้)
+   ไปคัดลอกค่าจริงได้ที่ Firebase Console > Project Settings > General
+================================================================ */
+const firebaseConfig = {
+  apiKey: "ใส่ apiKey จริงของคุณตรงนี้",
+  authDomain: "find-my-me.firebaseapp.com",
+  databaseURL: "https://find-my-me-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "find-my-me",
+  storageBucket: "find-my-me.firebasestorage.app",
+  messagingSenderId: "326856955805",
+  appId: "1:326856955805:web:4018e7fa10c82fe06b0174"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+/* ================================================================
+   SECTION: CONSTANTS
+================================================================ */
+const DAYS = ['จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์'];
+const HOURS = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'];
+const ACCENT_COLORS = ['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444','#ec4899','#06b6d4','#eab308'];
+
+/* ================================================================
+   SECTION: STATE
+================================================================ */
+const state = {
+  currentUser: null,
+  users: {},
+  timetable: {},
+  appointments: {},
+  assignments: {},
+  buddyPairs: null,
+  randomHistory: {},
+  settings: {}
+};
+let assignmentSubTab = 'pending';
+let selectedRandomMembers = new Set();
+let selectedBuddyMembers = new Set();
+let listenersAttached = false;
+
+/* ================================================================
+   SECTION: HELPER FUNCTIONS
+================================================================ */
+const $ = (id) => document.getElementById(id);
+
+function showToast(msg, type = 'info') {
+  const box = $('toastBox');
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.textContent = msg;
+  box.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+async function sha256Hex(text) {
+  const enc = new TextEncoder().encode(text);
+  const hashBuf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function colorForUser(username) {
+  let hash = 0;
+  for (let i = 0; i < username.length; i++) hash = username.charCodeAt(i) + ((hash << 5) - hash);
+  return ACCENT_COLORS[Math.abs(hash) % ACCENT_COLORS.length];
+}
+
+function initials(name) {
+  return (name || '?').trim().substring(0, 2).toUpperCase();
+}
+
+function genGroupCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
+function todayISO() {
+  return new Date().toLocaleDateString('en-CA');
+}
+function tomorrowISO() {
+  const d = new Date(); d.setDate(d.getDate() + 1);
+  return d.toLocaleDateString('en-CA');
+}
+function formatThaiDate(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+function formatThaiDateTime(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }) +
+    ' ' + d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+}
+function timeToMinutes(t) {
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+function overlaps(aStart, aEnd, bStart, bEnd) {
+  return timeToMinutes(aStart) < timeToMinutes(bEnd) && timeToMinutes(aEnd) > timeToMinutes(bStart);
+}
+function appointmentStatus(dateStr) {
+  const t = todayISO(), tm = tomorrowISO();
+  if (dateStr === t) return { label: 'วันนี้', cls: 'badge-red' };
+  if (dateStr === tm) return { label: 'พรุ่งนี้', cls: 'badge-orange' };
+  if (dateStr < t) return { label: 'ผ่านไปแล้ว', cls: 'badge-gray' };
+  return { label: 'กำลังจะมาถึง', cls: 'badge-blue' };
+}
+function deadlineStatus(deadlineStr) {
+  const now = new Date(); const dl = new Date(deadlineStr);
+  const diffHours = (dl - now) / 3600000;
+  if (diffHours < 0) return { label: 'เลยกำหนดแล้ว', cls: 'badge-gray', overdue: true, dueSoon: false };
+  if (diffHours <= 48) return { label: 'ใกล้ครบกำหนด', cls: 'badge-red', overdue: false, dueSoon: true };
+  return { label: 'ยังมีเวลา', cls: 'badge-green', overdue: false, dueSoon: false };
+}
+function priorityBadgeClass(p) {
+  if (p === 'สูง') return 'badge-red';
+  if (p === 'กลาง') return 'badge-orange';
+  return 'badge-cyan';
+}
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function getUserName(uid) {
+  return (state.users[uid] && state.users[uid].username) || 'สมาชิกที่ถูกลบ';
+}
+function getUserRoom(uid) {
+  return (state.users[uid] && state.users[uid].room) || '-';
+}
+function memberCount() {
+  return Object.keys(state.users).length;
+}
+function isOwnerOrAdmin(ownerId) {
+  if (!state.currentUser) return false;
+  return state.currentUser.uid === ownerId || state.currentUser.role === 'admin';
+}
+
+/* ================================================================
+   SECTION: SEED DEFAULT DATA (สร้างแอดมินเริ่มต้น + group code)
+================================================================ */
+async function seedDefaultData() {
+  const settingsSnap = await get(ref(db, 'settings'));
+  if (settingsSnap.exists()) return;
+
+  const defaultCode = 'GROUP2024';
+  await set(ref(db, 'settings'), { groupCode: defaultCode });
+
+  const usersSnap = await get(ref(db, 'users'));
+  if (!usersSnap.exists()) {
+    const adminHash = await sha256Hex('admin123');
+    const newUserRef = push(ref(db, 'users'));
+    await set(newUserRef, {
+      username: 'admin',
+      passwordHash: adminHash,
+      room: '-',
+      role: 'admin',
+      avatarColor: colorForUser('admin'),
+      createdAt: Date.now()
+    });
+  }
+}
+
+/* ================================================================
+   SECTION: AUTH — REGISTER / LOGIN / LOGOUT / SESSION
+================================================================ */
+function showAuthMessage(msg, type) {
+  const el = $('authMessage');
+  el.textContent = msg;
+  el.className = `auth-message show ${type}`;
+}
+function clearAuthMessage() {
+  $('authMessage').className = 'auth-message';
+}
+
+$('showLoginBtn').addEventListener('click', () => {
+  $('showLoginBtn').classList.add('active');
+  $('showRegisterBtn').classList.remove('active');
+  $('loginForm').classList.remove('hidden');
+  $('registerForm').classList.add('hidden');
+  clearAuthMessage();
+});
+$('showRegisterBtn').addEventListener('click', () => {
+  $('showRegisterBtn').classList.add('active');
+  $('showLoginBtn').classList.remove('active');
+  $('registerForm').classList.remove('hidden');
+  $('loginForm').classList.add('hidden');
+  clearAuthMessage();
+});
+
+$('registerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearAuthMessage();
+  const username = $('regUsername').value.trim();
+  const room = $('regRoom').value.trim();
+  const groupCode = $('regGroupCode').value.trim();
+  const password = $('regPassword').value;
+  const confirmPassword = $('regConfirmPassword').value;
+
+  if (!username || !room || !groupCode || !password) {
+    showAuthMessage('กรุณากรอกข้อมูลให้ครบทุกช่อง', 'error'); return;
+  }
+  if (password.length < 6) {
+    showAuthMessage('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร', 'error'); return;
+  }
+  if (password !== confirmPassword) {
+    showAuthMessage('รหัสผ่านไม่ตรงกัน', 'error'); return;
+  }
+
+  const settingsSnap = await get(ref(db, 'settings/groupCode'));
+  const validCode = settingsSnap.exists() ? settingsSnap.val() : null;
+  if (!validCode || validCode.toUpperCase() !== groupCode.toUpperCase()) {
+    showAuthMessage('รหัสกลุ่มไม่ถูกต้อง กรุณาตรวจสอบกับแอดมิน', 'error'); return;
+  }
+
+  const usersSnap = await get(ref(db, 'users'));
+  const usersVal = usersSnap.exists() ? usersSnap.val() : {};
+  const dup = Object.values(usersVal).some(u => u.username.toLowerCase() === username.toLowerCase());
+  if (dup) {
+    showAuthMessage('ชื่อผู้ใช้นี้ถูกใช้งานแล้ว', 'error'); return;
+  }
+
+  const passwordHash = await sha256Hex(password);
+  const newUserRef = push(ref(db, 'users'));
+  const userData = {
+    username, passwordHash, room,
+    role: 'member',
+    avatarColor: colorForUser(username),
+    createdAt: Date.now()
+  };
+  await set(newUserRef, userData);
+  showToast('สมัครสมาชิกสำเร็จ กำลังเข้าสู่ระบบ...', 'success');
+
+  await loginSuccess(newUserRef.key, userData, false);
+});
+
+$('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearAuthMessage();
+  const username = $('loginUsername').value.trim();
+  const password = $('loginPassword').value;
+  const remember = $('rememberMe').checked;
+
+  if (!username || !password) {
+    showAuthMessage('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน', 'error'); return;
+  }
+
+  const usersSnap = await get(ref(db, 'users'));
+  const usersVal = usersSnap.exists() ? usersSnap.val() : {};
+  const entry = Object.entries(usersVal).find(([uid, u]) => u.username.toLowerCase() === username.toLowerCase());
+
+  if (!entry) {
+    showAuthMessage('ไม่พบชื่อผู้ใช้นี้ในระบบ', 'error'); return;
+  }
+  const [uid, userData] = entry;
+  const hash = await sha256Hex(password);
+  if (hash !== userData.passwordHash) {
+    showAuthMessage('รหัสผ่านไม่ถูกต้อง', 'error'); return;
+  }
+
+  await loginSuccess(uid, userData, remember);
+});
+
+async function loginSuccess(uid, userData, remember) {
+  state.currentUser = { uid, ...userData };
+  const sessionData = JSON.stringify({ uid });
+  if (remember) {
+    localStorage.setItem('groupsync_session', sessionData);
+  } else {
+    sessionStorage.setItem('groupsync_session', sessionData);
+  }
+  attachRealtimeListeners();
+  showMainScreen();
+}
+
+$('logoutBtn').addEventListener('click', () => {
+  localStorage.removeItem('groupsync_session');
+  sessionStorage.removeItem('groupsync_session');
+  state.currentUser = null;
+  showAuthScreen();
+});
+
+function showAuthScreen() {
+  $('loadingScreen').classList.add('hidden');
+  $('mainScreen').classList.add('hidden');
+  $('authScreen').classList.remove('hidden');
+}
+function showMainScreen() {
+  $('loadingScreen').classList.add('hidden');
+  $('authScreen').classList.add('hidden');
+  $('mainScreen').classList.remove('hidden');
+  updateHeaderUser();
+  renderAll();
+}
+
+function updateHeaderUser() {
+  const u = state.currentUser;
+  if (!u) return;
+  $('headerUsername').textContent = u.username + (u.role === 'admin' ? ' 👑' : '');
+  $('headerRoom').textContent = 'ห้อง ' + u.room;
+  const av = $('headerAvatar');
+  av.style.background = u.avatarColor || colorForUser(u.username);
+  av.textContent = initials(u.username);
+  $('adminTabBtn').classList.toggle('hidden', u.role !== 'admin');
+}
+
+/* ================================================================
+   SECTION: REALTIME LISTENERS
+================================================================ */
+function attachRealtimeListeners() {
+  if (listenersAttached) return;
+  listenersAttached = true;
+
+  onValue(ref(db, 'users'), (snap) => {
+    state.users = snap.exists() ? snap.val() : {};
+    if (state.currentUser && state.users[state.currentUser.uid]) {
+      state.currentUser = { uid: state.currentUser.uid, ...state.users[state.currentUser.uid] };
+      updateHeaderUser();
+    }
+    renderAll();
+  });
+  onValue(ref(db, 'timetable'), (snap) => {
+    state.timetable = snap.exists() ? snap.val() : {};
+    renderAll();
+  });
+  onValue(ref(db, 'appointments'), (snap) => {
+    state.appointments = snap.exists() ? snap.val() : {};
+    renderAll();
+  });
+  onValue(ref(db, 'assignments'), (snap) => {
+    state.assignments = snap.exists() ? snap.val() : {};
+    renderAll();
+  });
+  onValue(ref(db, 'buddyPairs'), (snap) => {
+    state.buddyPairs = snap.exists() ? snap.val() : null;
+    renderAll();
+  });
+  onValue(ref(db, 'randomHistory'), (snap) => {
+    state.randomHistory = snap.exists() ? snap.val() : {};
+    renderAll();
+  });
+  onValue(ref(db, 'settings'), (snap) => {
+    state.settings = snap.exists() ? snap.val() : {};
+    renderAll();
+  });
+}
+
+/* ================================================================
+   SECTION: RENDER ALL (MASTER)
+================================================================ */
+function renderAll() {
+  if (!state.currentUser) return;
+  renderDashboard();
+  renderTimetableRoomFilter();
+  renderTimetableGrid();
+  renderFreeSlotGrid();
+  renderAppointments();
+  renderAssignments();
+  renderMembers();
+  renderRandomChecklist();
+  renderRandomResultHistory();
+  renderBuddy();
+  if (state.currentUser.role === 'admin') renderAdmin();
+}
+
+/* ================================================================
+   SECTION: RENDER — DASHBOARD
+================================================================ */
+function renderDashboard() {
+  const uid = state.currentUser.uid;
+  $('todayDateThai').textContent = new Date().toLocaleDateString('th-TH', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+  });
+
+  $('statMembers').textContent = memberCount();
+
+  const todayAppts = Object.entries(state.appointments || {}).filter(([id, a]) => a.date === todayISO());
+  $('statToday').textContent = todayAppts.length;
+
+  const assignEntries = Object.entries(state.assignments || {});
+  const pending = assignEntries.filter(([id, a]) => !(a.submittedBy && a.submittedBy[uid]));
+  $('statPending').textContent = pending.length;
+
+  const dueSoon = pending.filter(([id, a]) => deadlineStatus(a.deadline).dueSoon);
+  $('statDueSoon').textContent = dueSoon.length;
+
+  const todayListEl = $('dashTodayList');
+  if (todayAppts.length === 0) {
+    todayListEl.innerHTML = '<div class="empty-note">ไม่มีนัดหมายวันนี้</div>';
+  } else {
+    todayListEl.innerHTML = todayAppts.sort((a, b) => a[1].time.localeCompare(b[1].time))
+      .map(([id, a]) => `<div class="list-item"><span>${escapeHtml(a.title)}</span><span class="mono badge badge-red">${a.time}</span></div>`).join('');
+  }
+
+  const dueSoonListEl = $('dashDueSoonList');
+  if (dueSoon.length === 0) {
+    dueSoonListEl.innerHTML = '<div class="empty-note">ไม่มีงานใกล้ครบกำหนด</div>';
+  } else {
+    dueSoonListEl.innerHTML = dueSoon.sort((a, b) => new Date(a[1].deadline) - new Date(b[1].deadline)).slice(0, 6)
+      .map(([id, a]) => `<div class="list-item"><span>${escapeHtml(a.subject)}</span><span class="badge ${priorityBadgeClass(a.priority)}">${a.priority}</span></div>`).join('');
+  }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str ?? '';
+  return div.innerHTML;
+}
+
+/* ================================================================
+   SECTION: RENDER — TIMETABLE
+================================================================ */
+function populateSelectOnce(selectEl, options) {
+  if (selectEl.dataset.filled === '1') return;
+  selectEl.innerHTML = options.map(o => `<option value="${o}">${o}</option>`).join('');
+  selectEl.dataset.filled = '1';
+}
+
+function initTimetableFormOptions() {
+  populateSelectOnce($('ttDay'), DAYS);
+  populateSelectOnce($('ttStart'), HOURS.slice(0, -1));
+  populateSelectOnce($('ttEnd'), HOURS.slice(1));
+}
+
+function renderTimetableRoomFilter() {
+  const sel = $('timetableRoomFilter');
+  const rooms = [...new Set(Object.values(state.users).map(u => u.room).filter(Boolean))].sort();
+  const current = sel.value || 'all';
+  sel.innerHTML = `<option value="all">ทุกห้อง</option>` + rooms.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
+  sel.value = rooms.includes(current) ? current : 'all';
+}
+
+function renderTimetableGrid() {
+  const wrap = $('timetableGridWrap');
+  const roomFilter = $('timetableRoomFilter').value || 'all';
+  const entries = Object.entries(state.timetable || {});
+
+  let html = '<table class="sched-table"><thead><tr><th>เวลา</th>';
+  DAYS.forEach(d => html += `<th>${d}</th>`);
+  html += '</tr></thead><tbody>';
+
+  for (let i = 0; i < HOURS.length - 1; i++) {
+    const slotStart = HOURS[i], slotEnd = HOURS[i + 1];
+    html += `<tr><td class="time-col">${slotStart}-${slotEnd}</td>`;
+    DAYS.forEach(day => {
+      const matches = entries.filter(([id, e]) => {
+        if (e.day !== day) return false;
+        if (!overlaps(e.start, e.end, slotStart, slotEnd)) return false;
+        const room = getUserRoom(e.ownerId) || e.room;
+        if (roomFilter !== 'all' && room !== roomFilter) return false;
+        return true;
+      });
+      html += '<td>';
+      matches.forEach(([id, e]) => {
+        const color = (state.users[e.ownerId] && state.users[e.ownerId].avatarColor) || colorForUser(e.ownerName || '?');
+        const canDel = isOwnerOrAdmin(e.ownerId);
+        html += `<div class="sched-chip" style="background:${color};" title="${escapeHtml(e.subject)} - ${escapeHtml(e.ownerName || getUserName(e.ownerId))}">
+          ${escapeHtml(e.subject)} · ${escapeHtml((e.ownerName || getUserName(e.ownerId)))}
+          ${canDel ? `<span onclick="window.__deleteTimetable('${id}')" style="cursor:pointer;margin-left:4px;">✕</span>` : ''}
+        </div>`;
+      });
+      html += '</td>';
+    });
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
+window.__deleteTimetable = async (id) => {
+  if (!confirm('ต้องการลบคาบเรียนนี้หรือไม่?')) return;
+  await remove(ref(db, 'timetable/' + id));
+  showToast('ลบคาบเรียนแล้ว', 'success');
+};
+
+$('toggleTimetableForm').addEventListener('click', () => {
+  initTimetableFormOptions();
+  $('timetableFormCard').classList.toggle('hidden');
+});
+$('timetableRoomFilter').addEventListener('change', renderTimetableGrid);
+
+$('timetableForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const subject = $('ttSubject').value.trim();
+  const day = $('ttDay').value;
+  const start = $('ttStart').value;
+  const end = $('ttEnd').value;
+  if (timeToMinutes(end) <= timeToMinutes(start)) {
+    showToast('เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่ม', 'error'); return;
+  }
+  const newRef = push(ref(db, 'timetable'));
+  await set(newRef, {
+    subject, day, start, end,
+    ownerId: state.currentUser.uid,
+    ownerName: state.currentUser.username,
+    room: state.currentUser.room,
+    createdAt: Date.now()
+  });
+  $('timetableForm').reset();
+  $('timetableFormCard').classList.add('hidden');
+  showToast('เพิ่มคาบเรียนสำเร็จ', 'success');
+});
+
+/* ================================================================
+   SECTION: RENDER — FREE SLOT GRID
+================================================================ */
+function renderFreeSlotGrid() {
+  const wrap = $('freeSlotGridWrap');
+  const total = memberCount();
+  const entries = Object.values(state.timetable || {});
+
+  let html = '<table class="sched-table"><thead><tr><th>เวลา</th>';
+  DAYS.forEach(d => html += `<th>${d}</th>`);
+  html += '</tr></thead><tbody>';
+
+  for (let i = 0; i < HOURS.length - 1; i++) {
+    const slotStart = HOURS[i], slotEnd = HOURS[i + 1];
+    html += `<tr><td class="time-col">${slotStart}-${slotEnd}</td>`;
+    DAYS.forEach(day => {
+      const busy = new Set();
+      entries.forEach(e => {
+        if (e.day === day && overlaps(e.start, e.end, slotStart, slotEnd)) busy.add(e.ownerId);
+      });
+      const free = Math.max(total - busy.size, 0);
+      const isFull = total > 0 && free === total;
+      const isNone = free === 0 && total > 0;
+      html += `<td class="free-cell ${isFull ? 'full-free' : ''} ${isNone ? 'no-free' : ''}">${free}/${total}</td>`;
+    });
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
+/* ================================================================
+   SECTION: RENDER — APPOINTMENTS
+================================================================ */
+$('toggleAppointmentForm').addEventListener('click', () => {
+  if (!$('apDate').value) $('apDate').min = todayISO();
+  $('appointmentFormCard').classList.toggle('hidden');
+});
+
+$('appointmentForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const title = $('apTitle').value.trim();
+  const date = $('apDate').value;
+  const time = $('apTime').value;
+  const location = $('apLocation').value.trim();
+  const detail = $('apDetail').value.trim();
+  const newRef = push(ref(db, 'appointments'));
+  await set(newRef, {
+    title, date, time, location, detail,
+    ownerId: state.currentUser.uid,
+    ownerName: state.currentUser.username,
+    createdAt: Date.now()
+  });
+  $('appointmentForm').reset();
+  $('appointmentFormCard').classList.add('hidden');
+  showToast('เพิ่มนัดหมายสำเร็จ', 'success');
+});
+
+function renderAppointments() {
+  const list = $('appointmentsList');
+  const entries = Object.entries(state.appointments || {})
+    .sort((a, b) => (a[1].date + a[1].time).localeCompare(b[1].date + b[1].time));
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="empty-note">ยังไม่มีนัดหมาย</div>';
+    return;
+  }
+  list.innerHTML = entries.map(([id, a]) => {
+    const status = appointmentStatus(a.date);
+    const canDel = isOwnerOrAdmin(a.ownerId);
+    return `<div class="card item-card">
+      <div class="top-row">
+        <h4>${escapeHtml(a.title)}</h4>
+        <span class="badge ${status.cls}">${status.label}</span>
+      </div>
+      <div class="meta">
+        <span class="mono">📅 ${formatThaiDate(a.date)}</span>
+        <span class="mono">🕐 ${a.time}</span>
+        ${a.location ? `<span>📍 ${escapeHtml(a.location)}</span>` : ''}
+      </div>
+      ${a.detail ? `<div class="detail">${escapeHtml(a.detail)}</div>` : ''}
+      <div class="meta" style="margin-top:8px;">โดย ${escapeHtml(a.ownerName || getUserName(a.ownerId))}</div>
+      ${canDel ? `<div class="item-actions"><button class="btn btn-danger btn-sm" onclick="window.__deleteAppointment('${id}')">ลบ</button></div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+window.__deleteAppointment = async (id) => {
+  if (!confirm('ต้องการลบนัดหมายนี้หรือไม่?')) return;
+  await remove(ref(db, 'appointments/' + id));
+  showToast('ลบนัดหมายแล้ว', 'success');
+};
+
+/* ================================================================
+   SECTION: RENDER — ASSIGNMENTS
+================================================================ */
+$('toggleAssignmentForm').addEventListener('click', () => {
+  $('assignmentFormCard').classList.toggle('hidden');
+});
+
+$('assignmentForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const subject = $('asSubject').value.trim();
+  const deadline = $('asDeadline').value;
+  const priority = $('asPriority').value;
+  const note = $('asNote').value.trim();
+  const newRef = push(ref(db, 'assignments'));
+  await set(newRef, {
+    subject, deadline, priority, note,
+    ownerId: state.currentUser.uid,
+    ownerName: state.currentUser.username,
+    submittedBy: {},
+    createdAt: Date.now()
+  });
+  $('assignmentForm').reset();
+  $('assignmentFormCard').classList.add('hidden');
+  showToast('เพิ่มงานสำเร็จ', 'success');
+});
+
+document.querySelectorAll('[data-astab]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    assignmentSubTab = btn.dataset.astab;
+    document.querySelectorAll('[data-astab]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderAssignments();
+  });
+});
+
+function renderAssignments() {
+  const uid = state.currentUser.uid;
+  const list = $('assignmentsList');
+  const total = memberCount();
+  let entries = Object.entries(state.assignments || {});
+  entries = entries.filter(([id, a]) => {
+    const submitted = !!(a.submittedBy && a.submittedBy[uid]);
+    return assignmentSubTab === 'pending' ? !submitted : submitted;
+  });
+  entries.sort((a, b) => new Date(a[1].deadline) - new Date(b[1].deadline));
+
+  if (entries.length === 0) {
+    list.innerHTML = `<div class="empty-note">ไม่มีงานใน${assignmentSubTab === 'pending' ? 'รายการรอส่ง' : 'รายการที่ส่งแล้ว'}</div>`;
+    return;
+  }
+
+  list.innerHTML = entries.map(([id, a]) => {
+    const dstatus = deadlineStatus(a.deadline);
+    const submittedCount = Object.keys(a.submittedBy || {}).length;
+    const pct = total > 0 ? Math.round((submittedCount / total) * 100) : 0;
+    const isSubmitted = !!(a.submittedBy && a.submittedBy[uid]);
+    const canDel = isOwnerOrAdmin(a.ownerId);
+    const dl = new Date(a.deadline);
+    const dlLabel = dl.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' }) + ' ' + dl.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    return `<div class="card item-card">
+      <div class="top-row">
+        <h4>${escapeHtml(a.subject)}</h4>
+        <span class="badge ${priorityBadgeClass(a.priority)}">${a.priority}</span>
+      </div>
+      <div class="meta">
+        <span class="mono">⏰ ${dlLabel}</span>
+        <span class="badge ${dstatus.cls}">${dstatus.label}</span>
+      </div>
+      ${a.note ? `<div class="detail">${escapeHtml(a.note)}</div>` : ''}
+      <div class="meta" style="margin-top:8px;">โดย ${escapeHtml(a.ownerName || getUserName(a.ownerId))} · ส่งแล้ว ${submittedCount}/${total} คน</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%;"></div></div>
+      <div class="item-actions">
+        <button class="btn ${isSubmitted ? 'btn-outline' : 'btn-success'} btn-sm" onclick="window.__toggleSubmit('${id}', ${isSubmitted})">
+          ${isSubmitted ? '↩ ยกเลิกการส่ง' : '✓ ทำเครื่องหมายว่าส่งแล้ว'}
+        </button>
+        ${canDel ? `<button class="btn btn-danger btn-sm" onclick="window.__deleteAssignment('${id}')">ลบ</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.__toggleSubmit = async (id, isSubmitted) => {
+  const uid = state.currentUser.uid;
+  if (isSubmitted) {
+    await remove(ref(db, `assignments/${id}/submittedBy/${uid}`));
+  } else {
+    await set(ref(db, `assignments/${id}/submittedBy/${uid}`), true);
+  }
+};
+window.__deleteAssignment = async (id) => {
+  if (!confirm('ต้องการลบงานนี้หรือไม่?')) return;
+  await remove(ref(db, 'assignments/' + id));
+  showToast('ลบงานแล้ว', 'success');
+};
+
+/* ================================================================
+   SECTION: RENDER — MEMBERS
+================================================================ */
+function renderMembers() {
+  const grid = $('membersGrid');
+  const entries = Object.entries(state.users || {}).sort((a, b) => a[1].username.localeCompare(b[1].username));
+  grid.innerHTML = entries.map(([uid, u]) => `
+    <div class="card member-card">
+      <div class="avatar avatar-lg" style="background:${u.avatarColor || colorForUser(u.username)};margin-bottom:10px;">${initials(u.username)}</div>
+      <h4>${escapeHtml(u.username)}</h4>
+      <div class="room">ห้อง ${escapeHtml(u.room || '-')}</div>
+      <span class="badge ${u.role === 'admin' ? 'badge-purple' : 'badge-blue'}">${u.role === 'admin' ? 'แอดมิน' : 'สมาชิก'}</span>
+    </div>
+  `).join('');
+}
+
+/* ================================================================
+   SECTION: RENDER — RANDOM GROUP
+================================================================ */
+function renderRandomChecklist() {
+  const box = $('rgChecklist');
+  const entries = Object.entries(state.users || {}).sort((a, b) => a[1].username.localeCompare(b[1].username));
+  if (selectedRandomMembers.size === 0 && box.dataset.init !== '1') {
+    entries.forEach(([uid]) => selectedRandomMembers.add(uid));
+    box.dataset.init = '1';
+  }
+  box.innerHTML = entries.map(([uid, u]) => `
+    <label class="chk-row">
+      <input type="checkbox" data-rg-uid="${uid}" ${selectedRandomMembers.has(uid) ? 'checked' : ''}>
+      <span class="avatar avatar-sm" style="background:${u.avatarColor || colorForUser(u.username)};">${initials(u.username)}</span>
+      <span>${escapeHtml(u.username)} <span style="color:var(--text2);font-size:11.5px;">(${escapeHtml(u.room || '-')})</span></span>
+    </label>
+  `).join('');
+  box.querySelectorAll('[data-rg-uid]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const uid = cb.dataset.rgUid;
+      if (cb.checked) selectedRandomMembers.add(uid); else selectedRandomMembers.delete(uid);
+    });
+  });
+}
+
+$('rgSelectAll').addEventListener('click', () => {
+  selectedRandomMembers = new Set(Object.keys(state.users || {}));
+  renderRandomChecklist();
+});
+$('rgSelectNone').addEventListener('click', () => {
+  selectedRandomMembers = new Set();
+  renderRandomChecklist();
+});
+
+$('rgGenerateBtn').addEventListener('click', async () => {
+  const size = parseInt($('rgGroupSize').value, 10) || 1;
+  const selected = [...selectedRandomMembers];
+  if (selected.length < 2) {
+    showToast('กรุณาเลือกสมาชิกอย่างน้อย 2 คน', 'error'); return;
+  }
+  const shuffled = shuffle(selected);
+  const groups = [];
+  for (let i = 0; i < shuffled.length; i += size) groups.push(shuffled.slice(i, i + size));
+  if (groups.length > 1 && groups[groups.length - 1].length === 1) {
+    const last = groups.pop();
+    groups[groups.length - 1].push(...last);
+  }
+  renderGroupResult(groups, $('rgResult'));
+  const histRef = push(ref(db, 'randomHistory'));
+  await set(histRef, {
+    groups, size, createdAt: Date.now(), createdBy: state.currentUser.username
+  });
+  showToast('สุ่มกลุ่มสำเร็จ', 'success');
+});
+
+function renderGroupResult(groups, container) {
+  container.innerHTML = groups.map((g, i) => `
+    <div class="group-result-card">
+      <h5>กลุ่มที่ ${i + 1} (${g.length} คน)</h5>
+      <div>${g.map(uid => `<span class="group-member-chip">${escapeHtml(getUserName(uid))}</span>`).join('')}</div>
+    </div>
+  `).join('');
+}
+
+function renderRandomResultHistory() {
+  const box = $('rgHistory');
+  const entries = Object.entries(state.randomHistory || {}).sort((a, b) => b[1].createdAt - a[1].createdAt);
+  if (entries.length === 0) {
+    box.innerHTML = '<div class="empty-note">ยังไม่มีประวัติการสุ่ม</div>';
+    return;
+  }
+  box.innerHTML = entries.map(([id, h]) => `
+    <div class="history-entry">
+      <div class="meta" style="margin-bottom:8px;">
+        <span class="mono">${formatThaiDateTime(h.createdAt)}</span>
+        <span class="badge badge-blue">กลุ่มละ ${h.size} คน</span>
+        <span>โดย ${escapeHtml(h.createdBy || '-')}</span>
+      </div>
+      <div class="card-grid">
+        ${h.groups.map((g, i) => `
+          <div class="group-result-card">
+            <h5>กลุ่มที่ ${i + 1}</h5>
+            <div>${g.map(uid => `<span class="group-member-chip">${escapeHtml(getUserName(uid))}</span>`).join('')}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ================================================================
+   SECTION: RENDER — BUDDY SYSTEM
+================================================================ */
+function renderBuddy() {
+  const isAdmin = state.currentUser.role === 'admin';
+  $('buddyAdminControls').classList.toggle('hidden', !isAdmin);
+  $('allBuddyCard').classList.toggle('hidden', !isAdmin);
+
+  if (isAdmin) {
+    renderBuddyChecklist();
+    renderAllBuddyList();
+  }
+  renderMyBuddyCard();
+}
+
+function renderBuddyChecklist() {
+  const box = $('bdChecklist');
+  const entries = Object.entries(state.users || {}).sort((a, b) => a[1].username.localeCompare(b[1].username));
+  if (selectedBuddyMembers.size === 0 && box.dataset.init !== '1') {
+    entries.forEach(([uid]) => selectedBuddyMembers.add(uid));
+    box.dataset.init = '1';
+  }
+  box.innerHTML = entries.map(([uid, u]) => `
+    <label class="chk-row">
+      <input type="checkbox" data-bd-uid="${uid}" ${selectedBuddyMembers.has(uid) ? 'checked' : ''}>
+      <span class="avatar avatar-sm" style="background:${u.avatarColor || colorForUser(u.username)};">${initials(u.username)}</span>
+      <span>${escapeHtml(u.username)} <span style="color:var(--text2);font-size:11.5px;">(${escapeHtml(u.room || '-')})</span></span>
+    </label>
+  `).join('');
+  box.querySelectorAll('[data-bd-uid]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const uid = cb.dataset.bdUid;
+      if (cb.checked) selectedBuddyMembers.add(uid); else selectedBuddyMembers.delete(uid);
+    });
+  });
+}
+
+$('bdSelectAll').addEventListener('click', () => {
+  selectedBuddyMembers = new Set(Object.keys(state.users || {}));
+  renderBuddyChecklist();
+});
+$('bdSelectNone').addEventListener('click', () => {
+  selectedBuddyMembers = new Set();
+  renderBuddyChecklist();
+});
+
+$('bdGenerateBtn').addEventListener('click', async () => {
+  const selected = [...selectedBuddyMembers];
+  if (selected.length < 2) {
+    showToast('กรุณาเลือกสมาชิกอย่างน้อย 2 คน', 'error'); return;
+  }
+  const shuffled = shuffle(selected);
+  const pairs = [];
+  for (let i = 0; i < shuffled.length; i += 2) {
+    if (i + 1 < shuffled.length) pairs.push([shuffled[i], shuffled[i + 1]]);
+    else pairs[pairs.length - 1].push(shuffled[i]);
+  }
+  await set(ref(db, 'buddyPairs'), { pairs, createdAt: Date.now(), createdBy: state.currentUser.username });
+  showToast('สุ่มบัดดี้ใหม่สำเร็จ', 'success');
+});
+
+$('bdResetBtn').addEventListener('click', async () => {
+  if (!confirm('ต้องการรีเซ็ตคู่บัดดี้ทั้งหมดหรือไม่?')) return;
+  await remove(ref(db, 'buddyPairs'));
+  showToast('รีเซ็ตบัดดี้แล้ว', 'success');
+});
+
+function renderMyBuddyCard() {
+  const box = $('myBuddyCard');
+  const uid = state.currentUser.uid;
+  if (!state.buddyPairs || !state.buddyPairs.pairs) {
+    box.innerHTML = '<div class="empty-note">ยังไม่มีการสุ่มบัดดี้ในขณะนี้</div>';
+    return;
+  }
+  const myGroup = state.buddyPairs.pairs.find(g => g.includes(uid));
+  if (!myGroup) {
+    box.innerHTML = '<div class="empty-note">คุณไม่ได้อยู่ในรอบการสุ่มบัดดี้ล่าสุด</div>';
+    return;
+  }
+  const others = myGroup.filter(u => u !== uid);
+  box.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:14px;">` + others.map(ouid => {
+    const u = state.users[ouid];
+    return `<div class="buddy-card" style="flex:1;min-width:200px;">
+      <div class="avatar" style="background:${(u && u.avatarColor) || colorForUser(getUserName(ouid))};">${initials(getUserName(ouid))}</div>
+      <div>
+        <div style="font-weight:700;">${escapeHtml(getUserName(ouid))}</div>
+        <div style="font-size:12.5px;color:var(--text1);">ห้อง ${escapeHtml(getUserRoom(ouid))}</div>
+      </div>
+    </div>`;
+  }).join('') + `</div>`;
+}
+
+function renderAllBuddyList() {
+  const box = $('allBuddyList');
+  if (!state.buddyPairs || !state.buddyPairs.pairs) {
+    box.innerHTML = '<div class="empty-note">ยังไม่มีการสุ่มบัดดี้</div>';
+    return;
+  }
+  box.innerHTML = state.buddyPairs.pairs.map((g, i) => `
+    <div class="group-result-card">
+      <h5>คู่ที่ ${i + 1} ${g.length > 2 ? '(กลุ่มพิเศษ 3 คน)' : ''}</h5>
+      <div>${g.map(uid => `<span class="group-member-chip">${escapeHtml(getUserName(uid))}</span>`).join('')}</div>
+    </div>
+  `).join('');
+}
+
+/* ================================================================
+   SECTION: RENDER — ADMIN PANEL
+================================================================ */
+function renderAdmin() {
+  $('adminGroupCode').textContent = state.settings.groupCode || '--------';
+
+  const tbody = $('adminMembersTableBody');
+  const entries = Object.entries(state.users || {}).sort((a, b) => a[1].username.localeCompare(b[1].username));
+  const adminCount = entries.filter(([, u]) => u.role === 'admin').length;
+
+  tbody.innerHTML = entries.map(([uid, u]) => {
+    const isSelf = uid === state.currentUser.uid;
+    const isLastAdmin = u.role === 'admin' && adminCount <= 1;
+    return `<tr>
+      <td style="display:flex;align-items:center;gap:8px;">
+        <span class="avatar avatar-sm" style="background:${u.avatarColor || colorForUser(u.username)};">${initials(u.username)}</span>
+        ${escapeHtml(u.username)} ${isSelf ? '<span class="badge badge-blue">คุณ</span>' : ''}
+      </td>
+      <td>${escapeHtml(u.room || '-')}</td>
+      <td><span class="badge ${u.role === 'admin' ? 'badge-purple' : 'badge-blue'}">${u.role === 'admin' ? 'แอดมิน' : 'สมาชิก'}</span></td>
+      <td>
+        <button class="btn btn-outline btn-sm" ${isLastAdmin ? 'disabled' : ''} onclick="window.__toggleRole('${uid}', '${u.role}')">
+          ${u.role === 'admin' ? 'ถอดสิทธิ์แอดมิน' : 'ตั้งเป็นแอดมิน'}
+        </button>
+        <button class="btn btn-danger btn-sm" ${isSelf || isLastAdmin ? 'disabled' : ''} onclick="window.__deleteMember('${uid}')">ลบสมาชิก</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+window.__toggleRole = async (uid, currentRole) => {
+  const newRole = currentRole === 'admin' ? 'member' : 'admin';
+  if (!confirm(`ต้องการเปลี่ยนบทบาทเป็น "${newRole === 'admin' ? 'แอดมิน' : 'สมาชิก'}" หรือไม่?`)) return;
+  await update(ref(db, 'users/' + uid), { role: newRole });
+  showToast('อัปเดตบทบาทแล้ว', 'success');
+};
+window.__deleteMember = async (uid) => {
+  if (!confirm('ต้องการลบสมาชิกคนนี้หรือไม่? ข้อมูลตาราง/นัดหมาย/งานของสมาชิกจะยังคงอยู่')) return;
+  await remove(ref(db, 'users/' + uid));
+  showToast('ลบสมาชิกแล้ว', 'success');
+};
+
+$('copyGroupCodeBtn').addEventListener('click', () => {
+  navigator.clipboard.writeText(state.settings.groupCode || '').then(() => showToast('คัดลอกรหัสกลุ่มแล้ว', 'success'));
+});
+$('regenGroupCodeBtn').addEventListener('click', async () => {
+  if (!confirm('รหัสกลุ่มเดิมจะใช้สมัครสมาชิกไม่ได้อีก ต้องการสร้างรหัสใหม่หรือไม่?')) return;
+  const newCode = genGroupCode();
+  await update(ref(db, 'settings'), { groupCode: newCode });
+  showToast('สร้างรหัสกลุ่มใหม่สำเร็จ', 'success');
+});
+
+/* ================================================================
+   SECTION: TAB NAVIGATION
+================================================================ */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.classList.contains('hidden')) return;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    $('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ================================================================
+   SECTION: APP BOOTSTRAP
+================================================================ */
+async function boot() {
+  try {
+    await seedDefaultData();
+
+    let sessionRaw = localStorage.getItem('groupsync_session') || sessionStorage.getItem('groupsync_session');
+    if (sessionRaw) {
+      try {
+        const { uid } = JSON.parse(sessionRaw);
+        const snap = await get(ref(db, 'users/' + uid));
+        if (snap.exists()) {
+          state.currentUser = { uid, ...snap.val() };
+          attachRealtimeListeners();
+          showMainScreen();
+          return;
+        }
+      } catch (err) { /* invalid session, fall through */ }
+      localStorage.removeItem('groupsync_session');
+      sessionStorage.removeItem('groupsync_session');
+    }
+    showAuthScreen();
+  } catch (err) {
+    console.error(err);
+    $('loadingScreen').innerHTML = `<div style="color:#fca5a5;text-align:center;padding:20px;font-size:13.5px;">
+      เชื่อมต่อ Firebase ไม่สำเร็จ กรุณาตรวจสอบค่า firebaseConfig<br><br>
+      <span class="mono" style="color:var(--text1);">${escapeHtml(err.message || String(err))}</span>
+    </div>`;
+  }
+}
+
+boot();
+</script>
+</body>
+</html>
